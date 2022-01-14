@@ -18,23 +18,57 @@ String questionone[5][5] = {{
   "8781"
 }};
 
+String questiontwo[5][5] = {{
+  "G2 Question one", 
+  "G2 Question two",
+  "G2 Question three", 
+  "G2 Question four",
+  "G2 Question five"
+},{
+  "yellow", 
+  "green",
+  "blue", 
+  "blue",
+  "orange"
+}};
+
+String questionthree[5][5] = {{
+  "Question one", 
+  "Question two",
+  "Question three", 
+  "Question four",
+  "Question five"
+},{
+  "B", 
+  "C",
+  "C", 
+  "A",
+  "D"
+}};
+
 const byte ROWS = 4; 
 const byte COLS = 4; 
 
 // Declare the pins for the Buttons
-int yellowb = 26;
-int blueb = 27;
-int greenb = 28;
-int orangeb = 29;
+int yellowb = 30;
+int blueb = 36;
+int greenb = 32;
+int orangeb = 33;
 
 int whiteb1 = 22;
 int whiteb2 = 23;
-int whiteb3 = 24;
+int whiteb3 = 37;
 int whiteb4 = 25;
 
-int switch_pin = 10;
-int state = 0, Loadstate=0;
+int switch1 = 26;
+int switch2 = 27;
+int switch3 = 28;
+int switch4 = 29;
 
+int submitbtn = 5;
+
+String selectedButton = "";
+//Keypad setup
 char hexaKeys[ROWS][COLS] = {
   {'1', '2', '3', 'A'},
   {'4', '5', '6', 'B'},
@@ -42,19 +76,75 @@ char hexaKeys[ROWS][COLS] = {
   {'*', '0', '#', 'D'}
 };
 
-byte rowPins[ROWS] = {9, 8, 7, 6}; 
-byte colPins[COLS] = {5, 4, 3, 2}; 
+byte rowPins[ROWS] = {13, 12, 11, 10}; 
+byte colPins[COLS] = {9, 8, 7, 6}; 
 
 int currentGame = 1;
 
 String code = "";
 int gameindex = 0;
 Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS); 
+//Buzzer setup
+int buzzer = 34;
+int note = 1000; // Set the pitch for the buzzer tone
+
+int timeUnit = 100; // This variable will be used to measure dots, dashes, breaks, and pauses
+char input; // Variable to save the input to
+  //Letter functions
+void lA () {dot();dash();letterPause();}//letter A in morse code!
+void lB () {dash();dot();dot();dot();letterPause();}//same for B
+void lC () {dash();dot();dash();dot();letterPause();}
+void lD () {dash();dot();dot();letterPause();}
+void lE () {dot();letterPause();}
+void lF () {dot();dot();dash();dot();letterPause();}
+void lG () {dash();dash();dot();letterPause();}
+void lH () {dot();dot();dot();dot();letterPause();}
+void lI () {dot();dot();letterPause();}
+void lJ () {dot();dash();dash();dash();letterPause();}
+void lK () {dash();dot();dash();letterPause();}
+void lL () {dot();dash();dot();dot();letterPause();}
+void lM () {dash();dash();letterPause();}
+void lN () {dash();dot();letterPause();}
+void lO () {dash();dash();dash();letterPause();}
+void lP () {dot();dash();dash();dot();letterPause();}
+void lQ () {dash();dash();dot();dash();letterPause();}
+void lR () {dot();dash();dot();letterPause();}
+void lS () {dot();dot();dot();letterPause();}
+void lT () {dash();letterPause();}
+void lU () {dot();dot();dash();letterPause();}
+void lV () {dot();dot();dot();dash();letterPause();}
+void lW () {dot();dash();dash();letterPause();}
+void lX () {dash();dot();dot();dash();letterPause();}
+void lY () {dash();dot();dash();dash();letterPause();}
+void lZ () {dash();dash();dot();dot();letterPause();}
+
+void dot() //Emit sound for 100 milliseconds
+{
+tone(buzzer, note, timeUnit);
+delay(timeUnit * 2);
+}
+
+void dash() //Emit sound for 300 milliseconds
+{
+tone(buzzer, note, timeUnit * 3);
+delay(timeUnit * 4);
+}
+
+void letterPause() //Delay between letters for 300 milliseconds
+{
+delay(timeUnit * 3);
+}
+
+void wordPause()
+{
+delay (timeUnit * 7);
+}
 
 void setup() {
 
   lcd.init();
   lcd.backlight();
+  Serial.begin(9600);
   randomSeed(analogRead(0));
   gameindex = getRandomInt();
   pinMode(yellowb, INPUT_PULLUP);
@@ -67,7 +157,13 @@ void setup() {
   pinMode(whiteb3, INPUT_PULLUP);
   pinMode(whiteb4, INPUT_PULLUP);
 
-  pinMode(switch_pin, INPUT);
+  pinMode(switch1, INPUT_PULLUP);
+  pinMode(switch2, INPUT_PULLUP);
+  pinMode(switch3, INPUT_PULLUP);
+  pinMode(switch4, INPUT_PULLUP);
+
+  pinMode(submitbtn, INPUT_PULLUP);
+
 }
 
 void loop() {
@@ -79,64 +175,72 @@ void loop() {
     case 2:
     game2();
     break;
-    }
+    case 3:
+    game3();
+    break;
+   }
 }
 
 int getRandomInt(){
   return random(1,5);
 }
-
+//Game 1 enter a code
 void game1()  {
   char customKey = customKeypad.getKey();
   
-  lcd.setCursor(1,0);
+  lcd.setCursor(0,0);
   String question[2] = questionone[0][gameindex];
   lcd.print(question[1]);
   
   if (customKey){
-    if(customKey == '#'){
-      lcd.setCursor(1,1);
-      if(code == questionone[1][gameindex]){
+      if(code.length() != 4){
+        code.concat(customKey);
+        lcd.setCursor(1,1);
+        lcd.print(code);
+       }
+    }
+    if(digitalRead(submitbtn) == LOW){
+        if(code == questionone[1][gameindex]){
         currentGame = currentGame + 1;
-        lcd.print("Correct!");
         lcd.clear();
         }else{
           lcd.print("    ");
           code = "";
-          }
-      }else if(code.length() == 4){
-        } else {
-          code.concat(customKey);
-          lcd.setCursor(1,1);
-          lcd.print(code);
-          }
-  }
+        }
+      }
 }
-
+//Game 2 click the right button
 void game2() {
-  lcd.setCursor(1,0);
-  lcd.print("Second game!");
-//  int buttonValue = digitalRead(blueb);
-//   if (buttonValue == LOW){
-//      lcd.setCursor(1,1);
-//      lcd.print("Button blue is working!");
-//   } else {
-//     
-//   }
-  if (state == 0 && digitalRead(switch_pin) == HIGH) {
-    state = 1;
-    Loadstate=!Loadstate;
+  String question[2] = questiontwo[0][gameindex];
+  lcd.setCursor(0,0);
+  lcd.print(question[1]);
+
+  if(digitalRead(blueb) == LOW){
+    selectedButton = "blue";
+  }else if(digitalRead(greenb) == LOW){
+    selectedButton = "green";
+  }else if(digitalRead(orangeb) == LOW){
+    selectedButton = "orange";
+  } else if(digitalRead(yellowb) == LOW){
+    selectedButton = "yellow";
   }
-  if (state == 1 && digitalRead(switch_pin) == LOW) {   
-    state = 0;
+  
+    if(selectedButton == questiontwo[1][gameindex]){
+      currentGame = currentGame + 1;
+      lcd.clear();
+     }
   }
-   if (Loadstate==HIGH){
-    lcd.setCursor(1,1);
-    lcd.print("off");
-   }
-   else{
-    //Add Code block
-    lcd.setCursor(1,1);
-    lcd.print("on");
-   }
-  }
+
+  //Game 3 an A,B,C or D question
+  void game3(){
+    String question[2] = questionthree[0][gameindex];
+    lcd.setCursor(0,0);
+    lcd.print(question[1]);
+    lH();
+    lO();
+    lI();
+    wordPause();
+}
+  //Game 4 true or false with the switches
+
+  //Game 5 The vault lock
