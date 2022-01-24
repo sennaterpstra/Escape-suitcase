@@ -90,33 +90,17 @@ int note = 1000; // Set the pitch for the buzzer tone
 
 int timeUnit = 100; // This variable will be used to measure dots, dashes, breaks, and pauses
 char input; // Variable to save the input to
-  //Letter functions
-void lA () {dot();dash();letterPause();}//letter A in morse code!
-void lB () {dash();dot();dot();dot();letterPause();}//same for B
-void lC () {dash();dot();dash();dot();letterPause();}
-void lD () {dash();dot();dot();letterPause();}
-void lE () {dot();letterPause();}
-void lF () {dot();dot();dash();dot();letterPause();}
-void lG () {dash();dash();dot();letterPause();}
-void lH () {dot();dot();dot();dot();letterPause();}
-void lI () {dot();dot();letterPause();}
-void lJ () {dot();dash();dash();dash();letterPause();}
-void lK () {dash();dot();dash();letterPause();}
-void lL () {dot();dash();dot();dot();letterPause();}
-void lM () {dash();dash();letterPause();}
-void lN () {dash();dot();letterPause();}
-void lO () {dash();dash();dash();letterPause();}
-void lP () {dot();dash();dash();dot();letterPause();}
-void lQ () {dash();dash();dot();dash();letterPause();}
-void lR () {dot();dash();dot();letterPause();}
-void lS () {dot();dot();dot();letterPause();}
-void lT () {dash();letterPause();}
-void lU () {dot();dot();dash();letterPause();}
-void lV () {dot();dot();dot();dash();letterPause();}
-void lW () {dot();dash();dash();letterPause();}
-void lX () {dash();dot();dot();dash();letterPause();}
-void lY () {dash();dot();dash();dash();letterPause();}
-void lZ () {dash();dash();dot();dot();letterPause();}
+
+void n1 () {dot();dash();dash();dash();dash();shortspace();}//number 1 in morse code
+void n2 () {dot();dot();dash();dash();dash();shortspace();}
+void n3 () {dot();dot();dot();dash();dash();shortspace();}
+void n4 () {dot();dot();dot();dot();dash();shortspace();}
+void n5 () {dot();dot();dot();dot();dot();shortspace();}
+void n6 () {dash();dot();dot();dot();dot();shortspace();}
+void n7 () {dash();dash();dot();dot();dot();shortspace();}
+void n8 () {dash();dash();dash();dot();dot();shortspace();}
+void n9 () {dash();dash();dash();dash();dot();shortspace();}
+void n0 () {dash();dash();dash();dash();dash();shortspace();}
 
 void dot() //Emit sound for 100 milliseconds
 {
@@ -141,7 +125,13 @@ delay (timeUnit * 7);
 }
 
 void setup() {
+  
+ // put your setup code here, to run once:
+  tm.init();
 
+  //set brightness; 0-7
+  tm.set(2);
+  
   lcd.init();
   lcd.backlight();
   Serial.begin(9600);
@@ -167,7 +157,7 @@ void setup() {
 }
 
 void loop() {
-  
+
   switch(currentGame) {
     case 1:
     game1();
@@ -236,10 +226,14 @@ void game2() {
     String question[2] = questionthree[0][gameindex];
     lcd.setCursor(0,0);
     lcd.print(question[1]);
-    lH();
-    lO();
-    lI();
-    wordPause();
+    lcd.setCursor(0,1);
+    lcd.print(Klik op de zwarte knop);
+    lcd.setCursor(0,2);
+    lcd.print(om de kluiscode af te spelen);
+
+//    n5();
+//    wordPause();
+//    n8();
 }
   //Game 4 true or false with the switches
 
