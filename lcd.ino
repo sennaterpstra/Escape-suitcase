@@ -1,4 +1,4 @@
-#include <Wire.h> 
+ #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
 #include <Keypad.h>
 #include <Servo.h>
@@ -10,37 +10,37 @@ boolean turned = false;
 LiquidCrystal_I2C lcd(0x27, 20, 4); // I2C address 0x27, 16 column and 2 rows
 
 String questionone[5][5] = {{
-  "Wat is het kenteken van Donald Duck?"
+  "Wat is het kenteken,van Donald Duck?"
 },{
   "313"
 }};
 
 String questiontwo[5][5] = {{
-  "Welke kleur heeft de foodtruck?"
+  "Welke kleur heeft de,foodtruck?"
 },{
   "yellow"
 }};
 
 String questionthree[5][5] = {{
-  "Een algoritme is een soort stappenplan"
-},{
-  "true"
-}};
-
-String questionfour[5][5] = {{
-  "Computers hebben besef van goed en kwaad."
+   "Computers hebben,besef van goed en,kwaad"
 },{
   "false"
 }};
 
+String questionfour[5][5] = {{
+   "Een algoritme is een,soort stappenplan"
+},{
+  "true"
+}};
+
 String questionfive[5][5] = {{
-  "De auto van Katrien wordt omgebouwd tot zelfrijdende auto."
+  "De auto van Katrien,wordt omgebouwd tot,zelfrijdende auto"
 },{
   "false"
 }};
 
 String questionsix[5][5] = {{
-  "De dader van de datadiefstal is verdachte 3."
+  "De dader van de,datadiefstal is,verdachte 3"
 },{
   "true"
 }};
@@ -67,6 +67,11 @@ int switch4 = 29;
 int submitbtn = 5;
 
 String selectedButton = "";
+String selectedSwitch1 = "";
+String selectedSwitch2 = "";
+String selectedSwitch3 = "";
+String selectedSwitch4 = "";
+String morsecode = "";
 //Keypad setup
 char hexaKeys[ROWS][COLS] = {
   {'1', '2', '3', 'A'},
@@ -129,6 +134,22 @@ delay (timeUnit * 7);
  int rotation;  
  int value;
   boolean LeftRight;
+  
+String getValue(String data, char separator, int index)
+{
+    int found = 0;
+    int strIndex[] = { 0, -1 };
+    int maxIndex = data.length() - 1;
+
+    for (int i = 0; i <= maxIndex && found <= index; i++) {
+        if (data.charAt(i) == separator || i == maxIndex) {
+            found++;
+            strIndex[0] = strIndex[1] + 1;
+            strIndex[1] = (i == maxIndex) ? i+1 : i;
+        }
+    }
+    return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
+}
 
 void setup() {
 Serial.begin (9600);
@@ -173,9 +194,9 @@ void loop() {
     case 3:
     game3();
     break;
-    case 4:
-    game4();
-    break;
+//    case 4:
+//    game4();
+//    break;
     case 5:
     game5();
     break;
@@ -184,6 +205,9 @@ void loop() {
     break;
     case 7:
     game7();
+    break;
+    case 8:
+    game8();
     break;
    }
 }
@@ -197,21 +221,25 @@ void game1()  {
  
   String question[2] = questionone[0][gameindex];
    lcd.setCursor(0,0);
-  lcd.print(question[1]);
+   lcd.print(getValue(question[1], ',', 0));
+   lcd.setCursor(0,1);
+   lcd.print(getValue(question[1], ',', 1));
   
   if (customKey){
-      if(code.length() != 4){
+      if(code.length() != 3){
         code.concat(customKey);
-        lcd.setCursor(0,3);
+        lcd.setCursor(0,2);
         lcd.print(code);
        }
     }
-    if(digitalRead(submitbtn) == LOW){
+    if(customKey == '#'){
         if(code == questionone[1][gameindex]){
+          delay(1000);
         currentGame = currentGame + 1;
         lcd.clear();
         }else{
-          lcd.print("    ");
+          lcd.setCursor(0,2);
+          lcd.print("      ");
           code = "";
         }
       }
@@ -220,7 +248,9 @@ void game1()  {
 void game2() {
   String question[2] = questiontwo[0][gameindex];
   lcd.setCursor(0,0);
-  lcd.print(question[1]);
+   lcd.print(getValue(question[1], ',', 0));
+   lcd.setCursor(0,1);
+   lcd.print(getValue(question[1], ',', 1));
 
   if(digitalRead(blueb) == LOW){
     selectedButton = "blue";
@@ -233,132 +263,159 @@ void game2() {
   }
   
     if(selectedButton == questiontwo[1][gameindex]){
+      delay(1000);
       currentGame = currentGame + 1;
       lcd.clear();
      }
   }
+  //Switches
   void game3(){
     String question[2] = questionthree[0][gameindex];
     lcd.setCursor(0,0);
-    lcd.print(question[1]);
+    lcd.print("Schakelaar 1");
+   lcd.setCursor(0,1);
+   lcd.print(getValue(question[1], ',', 0));
+   lcd.setCursor(0,2);
+   lcd.print(getValue(question[1], ',', 1));
+   lcd.setCursor(0,3);
+   lcd.print(getValue(question[1], ',', 2));
 
     if(digitalRead(switch1) == 1){
-      selectedButton = "true";
+      selectedSwitch1 = "true";
     }else if(digitalRead(switch1) == 0){
-      selectedButton = "false";
+      selectedSwitch1 = "false";
     }
-    lcd.setCursor(0,1);
-    lcd.print(selectedButton);
-    lcd.setCursor(0,3);
-    lcd.print(questionthree[1][gameindex]);
+    //lcd.setCursor(0,3);
+   // lcd.print(selectedSwitch1+questionthree[1][gameindex]);
+   
     if(digitalRead(submitbtn) == LOW){
-      if(questionthree[1][gameindex] == selectedButton){
-        currentGame = currentGame + 1;
+      if(questionthree[1][gameindex] == selectedSwitch1){
+        delay(1000);
+        lcd.clear();
+        currentGame = currentGame + 2;
         }
       }
     }
 
     void game4(){
-      selectedButton = "";
     String question[2] = questionfour[0][gameindex];
     lcd.setCursor(0,0);
-    lcd.print(question[1]);
-
-    if(digitalRead(switch1) == 1){
-      selectedButton = "true";
-    }else if(digitalRead(switch1) == 0){
-      selectedButton = "false";
-    }
+    lcd.print("Schakelaar 2");
     lcd.setCursor(0,1);
-    lcd.print(selectedButton);
+   lcd.print(getValue(question[1], ',', 0));
+   lcd.setCursor(0,2);
+   lcd.print(getValue(question[1], ',', 1));
     lcd.setCursor(0,3);
-    lcd.print(questionthree[1][gameindex]);
+   lcd.print(getValue(question[1], ',', 2));
+
+    if(digitalRead(switch2) == 1){
+      selectedSwitch2 = "true";
+    }else if(digitalRead(switch2) == 0){
+      selectedSwitch2 = "false";
+    }
+   // lcd.setCursor(0,3);
+    //lcd.print(selectedSwitch2+questionfour[1][gameindex]);
     if(digitalRead(submitbtn) == LOW){
-      if(questionthree[1][gameindex] == selectedButton){
+      if(questionfour[1][gameindex] == selectedSwitch2){
+        delay(1000);
+        lcd.clear();
         currentGame = currentGame + 1;
         }
       }
     }
 
     void game5(){
-      selectedButton = "";
     String question[2] = questionfive[0][gameindex];
     lcd.setCursor(0,0);
-    lcd.print(question[1]);
+    lcd.print("Schakelaar 3");
+   lcd.setCursor(0,1);
+   lcd.print(getValue(question[1], ',', 0));
+   lcd.setCursor(0,2);
+   lcd.print(getValue(question[1], ',', 1));
+   lcd.setCursor(0,3);
+   lcd.print(getValue(question[1], ',', 2));
 
-    if(digitalRead(switch1) == 1){
-      selectedButton = "true";
+    if(digitalRead(switch3) == 1){
+      selectedSwitch3 = "true";
     }else if(digitalRead(switch1) == 0){
-      selectedButton = "false";
+      selectedSwitch3 = "false";
     }
-    lcd.setCursor(0,1);
-    lcd.print(selectedButton);
-    lcd.setCursor(0,3);
-    lcd.print(questionthree[1][gameindex]);
+   // lcd.setCursor(0,3);
+//lcd.print(selectedSwitch3+questionfive[1][gameindex]);
+    
     if(digitalRead(submitbtn) == LOW){
-      if(questionthree[1][gameindex] == selectedButton){
+      if(questionfive[1][gameindex] == selectedSwitch3){
+        delay(1000);
+        lcd.clear();
         currentGame = currentGame + 1;
         }
       }
     }
 
     void game6(){
-      selectedButton = "";
     String question[2] = questionsix[0][gameindex];
     lcd.setCursor(0,0);
-    lcd.print(question[1]);
-
-    if(digitalRead(switch1) == 1){
-      selectedButton = "true";
-    }else if(digitalRead(switch1) == 0){
-      selectedButton = "false";
-    }
+    lcd.print("Schakelaar 4");
     lcd.setCursor(0,1);
-    lcd.print(selectedButton);
-    lcd.setCursor(0,3);
-    lcd.print(questionthree[1][gameindex]);
+   lcd.print(getValue(question[1], ',', 0));
+   lcd.setCursor(0,2);
+   lcd.print(getValue(question[1], ',', 1));
+   lcd.setCursor(0,3);
+   lcd.print(getValue(question[1], ',', 2));
+
+    if(digitalRead(switch4) == 1){
+      selectedSwitch4 = "true";
+    }else if(digitalRead(switch1) == 0){
+      selectedSwitch4 = "false";
+    }
+   // lcd.setCursor(0,3);
+   // lcd.print(selectedSwitch4+questionsix[1][gameindex]);
     if(digitalRead(submitbtn) == LOW){
-      if(questionthree[1][gameindex] == selectedButton){
+      if(questionthree[1][gameindex] == selectedSwitch4){
+        delay(1000);
+        lcd.clear();
         currentGame = currentGame + 1;
         }
       }
     }
-  //Game 3 an A,B,C or D question
+  //Game 3 morse code
   void game7(){
+    char customKey = customKeypad.getKey();
     lcd.setCursor(0,0);
-    lcd.print("Klik op de zwarte knop");
+    lcd.print("Klik op de zwarte");
     lcd.setCursor(0,1);
-    lcd.print("om de kluiscode af te spelen");
+    lcd.print("knop om de kluiscode");
+    lcd.setCursor(0,2);
+    lcd.print("af te spelen.");
     if(digitalRead(submitbtn) == LOW){
-     // n5();
-     // wordPause();
-      //n8();
+      n5();
+      wordPause();
+      n8();
      }
-//       if (customKey){
-//      if(code.length() != 4){
-//        code.concat(customKey);
-//        lcd.setCursor(0,2);
-//        lcd.print(code);
-//       }
-//    }
-//    if(customKey == '#'){
-//        if(code == questionone[1][gameindex]){
-//        currentGame = currentGame + 1;
-//        lcd.clear();
-//        }else{
-//          lcd.print("    ");
-//          code = "";
-//        }
-//      }
+       if (customKey){
+      if(morsecode.length() != 2){
+        morsecode.concat(customKey);
+        lcd.setCursor(0,3);
+        lcd.print(morsecode);
+       }
+    }
+    if(customKey == '#'){
+        if(morsecode == "58"){
+          delay(1000);
+        currentGame = currentGame + 1;
+        lcd.clear();
+        }else{
+          lcd.setCursor(0,3);
+          lcd.print("    ");
+          morsecode = "";
+        }
+      }
 }
   //Game 4 true or false with the switches
     void game8(){
-      lcd.clear();
       lcd.setCursor(0,1);
       lcd.print("Game finished!");
-       if(digitalRead(submitbtn) == LOW && turned == false){
-
- 
+       if(turned == false){
       // scan from 0 to 180 degrees
       for(angle = 10; angle > 0; angle++)  
       {                                  
