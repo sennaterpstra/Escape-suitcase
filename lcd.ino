@@ -1,49 +1,48 @@
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
 #include <Keypad.h>
+#include <Servo.h>
+Servo servo;
+
+int angle = 150;
+boolean turned = false;
 
 LiquidCrystal_I2C lcd(0x27, 20, 4); // I2C address 0x27, 16 column and 2 rows
 
 String questionone[5][5] = {{
-  "Question one", 
-  "Question two",
-  "Question three", 
-  "Question four",
-  "Question five"
+  "Wat is het kenteken van Donald Duck?"
 },{
-  "7859", 
-  "3456",
-  "7687", 
-  "3214",
-  "8781"
+  "313"
 }};
 
 String questiontwo[5][5] = {{
-  "G2 Question one", 
-  "G2 Question two",
-  "G2 Question three", 
-  "G2 Question four",
-  "G2 Question five"
+  "Welke kleur heeft de foodtruck?"
 },{
-  "yellow", 
-  "green",
-  "blue", 
-  "blue",
-  "orange"
+  "yellow"
 }};
 
 String questionthree[5][5] = {{
-  "Question one", 
-  "Question two",
-  "Question three", 
-  "Question four",
-  "Question five"
+  "Een algoritme is een soort stappenplan"
 },{
-  "B", 
-  "C",
-  "C", 
-  "A",
-  "D"
+  "true"
+}};
+
+String questionfour[5][5] = {{
+  "Computers hebben besef van goed en kwaad."
+},{
+  "false"
+}};
+
+String questionfive[5][5] = {{
+  "De auto van Katrien wordt omgebouwd tot zelfrijdende auto."
+},{
+  "false"
+}};
+
+String questionsix[5][5] = {{
+  "De dader van de datadiefstal is verdachte 3."
+},{
+  "true"
 }};
 
 const byte ROWS = 4; 
@@ -101,7 +100,7 @@ void n7 () {dash();dash();dot();dot();dot();shortspace();}
 void n8 () {dash();dash();dash();dot();dot();shortspace();}
 void n9 () {dash();dash();dash();dash();dot();shortspace();}
 void n0 () {dash();dash();dash();dash();dash();shortspace();}
-
+void shortspace () {delay(600);}//space between letters
 void dot() //Emit sound for 100 milliseconds
 {
 tone(buzzer, note, timeUnit);
@@ -123,20 +122,26 @@ void wordPause()
 {
 delay (timeUnit * 7);
 }
+//Potentiometer
+ int CLK = 9;  // Pin 9 to clk on encoder
+ int DT = 8;  // Pin 8 to DT on encoder
+ int RotPosition = 0; 
+ int rotation;  
+ int value;
+  boolean LeftRight;
 
 void setup() {
-  
- // put your setup code here, to run once:
-  tm.init();
-
-  //set brightness; 0-7
-  tm.set(2);
+Serial.begin (9600);
+  rotation = digitalRead(CLK);  
+  //Servo
+  servo.attach(53);
+  servo.write(angle); 
   
   lcd.init();
   lcd.backlight();
   Serial.begin(9600);
   randomSeed(analogRead(0));
-  gameindex = getRandomInt();
+  //gameindex = getRandomInt();
   pinMode(yellowb, INPUT_PULLUP);
   pinMode(blueb, INPUT_PULLUP);
   pinMode(greenb, INPUT_PULLUP);
@@ -168,6 +173,18 @@ void loop() {
     case 3:
     game3();
     break;
+    case 4:
+    game4();
+    break;
+    case 5:
+    game5();
+    break;
+    case 6:
+    game6();
+    break;
+    case 7:
+    game7();
+    break;
    }
 }
 
@@ -177,15 +194,15 @@ int getRandomInt(){
 //Game 1 enter a code
 void game1()  {
   char customKey = customKeypad.getKey();
-  
-  lcd.setCursor(0,0);
+ 
   String question[2] = questionone[0][gameindex];
+   lcd.setCursor(0,0);
   lcd.print(question[1]);
   
   if (customKey){
       if(code.length() != 4){
         code.concat(customKey);
-        lcd.setCursor(1,1);
+        lcd.setCursor(0,3);
         lcd.print(code);
        }
     }
@@ -220,21 +237,135 @@ void game2() {
       lcd.clear();
      }
   }
-
-  //Game 3 an A,B,C or D question
   void game3(){
     String question[2] = questionthree[0][gameindex];
     lcd.setCursor(0,0);
     lcd.print(question[1]);
-    lcd.setCursor(0,1);
-    lcd.print(Klik op de zwarte knop);
-    lcd.setCursor(0,2);
-    lcd.print(om de kluiscode af te spelen);
 
-//    n5();
-//    wordPause();
-//    n8();
+    if(digitalRead(switch1) == 1){
+      selectedButton = "true";
+    }else if(digitalRead(switch1) == 0){
+      selectedButton = "false";
+    }
+    lcd.setCursor(0,1);
+    lcd.print(selectedButton);
+    lcd.setCursor(0,3);
+    lcd.print(questionthree[1][gameindex]);
+    if(digitalRead(submitbtn) == LOW){
+      if(questionthree[1][gameindex] == selectedButton){
+        currentGame = currentGame + 1;
+        }
+      }
+    }
+
+    void game4(){
+      selectedButton = "";
+    String question[2] = questionfour[0][gameindex];
+    lcd.setCursor(0,0);
+    lcd.print(question[1]);
+
+    if(digitalRead(switch1) == 1){
+      selectedButton = "true";
+    }else if(digitalRead(switch1) == 0){
+      selectedButton = "false";
+    }
+    lcd.setCursor(0,1);
+    lcd.print(selectedButton);
+    lcd.setCursor(0,3);
+    lcd.print(questionthree[1][gameindex]);
+    if(digitalRead(submitbtn) == LOW){
+      if(questionthree[1][gameindex] == selectedButton){
+        currentGame = currentGame + 1;
+        }
+      }
+    }
+
+    void game5(){
+      selectedButton = "";
+    String question[2] = questionfive[0][gameindex];
+    lcd.setCursor(0,0);
+    lcd.print(question[1]);
+
+    if(digitalRead(switch1) == 1){
+      selectedButton = "true";
+    }else if(digitalRead(switch1) == 0){
+      selectedButton = "false";
+    }
+    lcd.setCursor(0,1);
+    lcd.print(selectedButton);
+    lcd.setCursor(0,3);
+    lcd.print(questionthree[1][gameindex]);
+    if(digitalRead(submitbtn) == LOW){
+      if(questionthree[1][gameindex] == selectedButton){
+        currentGame = currentGame + 1;
+        }
+      }
+    }
+
+    void game6(){
+      selectedButton = "";
+    String question[2] = questionsix[0][gameindex];
+    lcd.setCursor(0,0);
+    lcd.print(question[1]);
+
+    if(digitalRead(switch1) == 1){
+      selectedButton = "true";
+    }else if(digitalRead(switch1) == 0){
+      selectedButton = "false";
+    }
+    lcd.setCursor(0,1);
+    lcd.print(selectedButton);
+    lcd.setCursor(0,3);
+    lcd.print(questionthree[1][gameindex]);
+    if(digitalRead(submitbtn) == LOW){
+      if(questionthree[1][gameindex] == selectedButton){
+        currentGame = currentGame + 1;
+        }
+      }
+    }
+  //Game 3 an A,B,C or D question
+  void game7(){
+    lcd.setCursor(0,0);
+    lcd.print("Klik op de zwarte knop");
+    lcd.setCursor(0,1);
+    lcd.print("om de kluiscode af te spelen");
+    if(digitalRead(submitbtn) == LOW){
+     // n5();
+     // wordPause();
+      //n8();
+     }
+//       if (customKey){
+//      if(code.length() != 4){
+//        code.concat(customKey);
+//        lcd.setCursor(0,2);
+//        lcd.print(code);
+//       }
+//    }
+//    if(customKey == '#'){
+//        if(code == questionone[1][gameindex]){
+//        currentGame = currentGame + 1;
+//        lcd.clear();
+//        }else{
+//          lcd.print("    ");
+//          code = "";
+//        }
+//      }
 }
   //Game 4 true or false with the switches
+    void game8(){
+      lcd.clear();
+      lcd.setCursor(0,1);
+      lcd.print("Game finished!");
+       if(digitalRead(submitbtn) == LOW && turned == false){
 
+ 
+      // scan from 0 to 180 degrees
+      for(angle = 10; angle > 0; angle++)  
+      {                                  
+        servo.write(0);               
+        delay(15);                   
+      } 
+      turned = true;
+   }
+    }
   //Game 5 The vault lock
