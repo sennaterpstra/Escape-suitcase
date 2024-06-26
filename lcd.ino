@@ -18,6 +18,34 @@ String questionone[5][5] = {{
   "8781"
 }};
 
+String questiontwo[5][5] = {{
+  "Question one", 
+  "Question two",
+  "Question three", 
+  "Question four",
+  "Question five"
+},{
+  "yellow", 
+  "green",
+  "blue", 
+  "blue",
+  "red"
+}};
+
+String questionthree[5][5] = {{
+  "Question one", 
+  "Question two",
+  "Question three", 
+  "Question four",
+  "Question five"
+},{
+  "B", 
+  "C",
+  "C", 
+  "A",
+  "D"
+}};
+
 const byte ROWS = 4; 
 const byte COLS = 4; 
 
@@ -33,7 +61,8 @@ int whiteb3 = 24;
 int whiteb4 = 25;
 
 int switch_pin = 10;
-int state = 0, Loadstate=0;
+int lastState = HIGH; // the previous state from the input pin
+int currentState;    // the current reading from the input pin
 
 char hexaKeys[ROWS][COLS] = {
   {'1', '2', '3', 'A'},
@@ -42,8 +71,8 @@ char hexaKeys[ROWS][COLS] = {
   {'*', '0', '#', 'D'}
 };
 
-byte rowPins[ROWS] = {9, 8, 7, 6}; 
-byte colPins[COLS] = {5, 4, 3, 2}; 
+byte rowPins[ROWS] = {13, 12, 11,10}; 
+byte colPins[COLS] = {9, 8, 7, 6}; 
 
 int currentGame = 1;
 
@@ -85,7 +114,7 @@ void loop() {
 int getRandomInt(){
   return random(1,5);
 }
-
+//Game 1 enter a code
 void game1()  {
   char customKey = customKeypad.getKey();
   
@@ -112,31 +141,26 @@ void game1()  {
           }
   }
 }
-
+//Game 2 click the right button
 void game2() {
+  //String question[2] = questiontwo[0][gameindex];
   lcd.setCursor(1,0);
-  lcd.print("Second game!");
-//  int buttonValue = digitalRead(blueb);
-//   if (buttonValue == LOW){
-//      lcd.setCursor(1,1);
-//      lcd.print("Button blue is working!");
-//   } else {
-//     
-//   }
-  if (state == 0 && digitalRead(switch_pin) == HIGH) {
-    state = 1;
-    Loadstate=!Loadstate;
-  }
-  if (state == 1 && digitalRead(switch_pin) == LOW) {   
-    state = 0;
-  }
-   if (Loadstate==HIGH){
+  lcd.print("Game 2!");
+  // read the state of the switch/button:
+  currentState = digitalRead(yellowb);
+
+  if(lastState == LOW && currentState == HIGH){
     lcd.setCursor(1,1);
-    lcd.print("off");
-   }
-   else{
-    //Add Code block
-    lcd.setCursor(1,1);
-    lcd.print("on");
-   }
+    lcd.print("The state changed from LOW to HIGH");
+    }
+  // save the last state
+  lastState = currentState;
+  
+   
   }
+
+  //Game 3 an A,B,C or D question
+
+  //Game 4 true or false with the switches
+
+  //Game 5 The vault lock
